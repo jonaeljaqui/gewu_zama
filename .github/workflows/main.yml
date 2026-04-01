@@ -1,0 +1,29 @@
+name: Nightly Reminder Robot
+
+on:
+  schedule:
+    # 北京时间 20:00 对应 UTC 时间 12:00
+    - cron: '0 13 * * *'
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Reminder
+        run: |
+          # 获取今天的日期
+          TODAY=$(date -d "+8 hours" "+%Y年%m月%d日")
+          
+          curl '${{ secrets.DINGTALK_URL }}' \
+          -H 'Content-Type: application/json' \
+          -d '{
+            "msgtype": "markdown",
+            "markdown": {
+              "title": "打卡提醒",
+              "text": "### 🌙 '$TODAY' 晚间温馨提醒\n---\n各位小伙伴，忙碌的一天快结束啦！别忘了今天的“每日一刷”哦。\n\n**漏刷一天，前功尽弃！** 坚持就是胜利，赶紧行动起来吧！🚀\n\n> 状态：待确认"
+            },
+            "at": {
+              "isAtAll": true
+            }
+          }'

@@ -1,31 +1,18 @@
 name: Nightly Reminder Robot
 
 on:
-  schedule:
-    - cron: '0 13 * * *'  # 北京时间 20:00
-  workflow_dispatch:      # 允许手动触发测试
+  workflow_dispatch: # 先手动触发测试
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Send Reminder
-        env:
-          HOOK_URL: ${{ secrets.DINGTALK_URL }}
         run: |
-          # 获取北京时间日期
+          # 1. 设置日期
           TODAY=$(date -d "+8 hours" "+%Y年%m月%d日")
           
-          # 直接发送，不经过复杂的变量引用
-          curl -X POST "$HOOK_URL" \
-          -H 'Content-Type: application/json' \
-          -d '{
-            "msgtype": "markdown",
-            "markdown": {
-              "title": "打卡提醒",
-              "text": "### 🌙 '$TODAY' 晚间提醒\n---\n各位小伙伴，别忘了今天的“每日一刷”哦。\n\n**漏刷一天，前功尽弃！** 赶紧冲鸭！🚀\n\n> 状态：待完成"
-            },
-            "at": {
-              "isAtAll": true
-            }
-          }'
+          # 2. 直接发送（注意：下面这一行直接用了你的Token，确保仓库是Private私有的）
+          curl -H "Content-Type: application/json" \
+               -d "{\"msgtype\":\"markdown\",\"markdown\":{\"title\":\"提醒\",\"text\":\"### 🌙 $TODAY 晚间提醒\n---\n各位，别忘了今天的‘每日一刷’哦。\n\n**漏刷一天，前功尽弃！** 赶紧冲鸭！🚀\n\n> 状态：待完成\"},\"at\":{\"isAtAll\":true}}" \
+               "https://oapi.dingtalk.com/robot/send?access_token=61ca199e7f292aaee3ac9c7c9a3dce0a61285a78a0ac63ba86071005f01ca77f"
